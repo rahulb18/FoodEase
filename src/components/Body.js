@@ -1,3 +1,6 @@
+import { useEffect, useState } from "react";
+import RestrauntCard from "./RestruarantCard";
+
 const restrauntList = [
   {
     name: "Burger King",
@@ -8,22 +11,42 @@ const restrauntList = [
   },
 ];
 
-const RestrauntCard = () => {
-  return (
-    <div className="card">
-      <img src="" alt="burger king" />
-      <h2>Burger King</h2>
-      <h3>Burgers, American</h3>
-      <h4>4.2 stars</h4>
-    </div>
-  );
-};
-
 const Body = () => {
+  const [allRestaurants, setAllRestaurants] = useState([]);
+  const [value, setValue] = useState("");
+
+  useEffect(() => {
+    getData();
+  }, []);
+
+  async function getData() {
+    const data = await fetch(
+      "https://www.swiggy.com/dapi/restaurants/list/v5?lat=18.4464732&lng=73.826375&page_type=DESKTOP_WEB_LISTING"
+    );
+    const json = await data.json();
+    setAllRestaurants(json?.data?.cards[2]?.data?.data?.cards);
+  }
+
   return (
-    <div className="restaurant-list">
-      <RestrauntCard />
-    </div>
+    <>
+      <div>
+        <label>Search Restaurants: </label>
+        <input
+          type="text"
+          placeholder="Search"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+        />
+        <button type="submit">Submit</button>
+      </div>
+      <div className="restaurant-list">
+        {allRestaurants.map((restaurant) => {
+          return (
+            <RestrauntCard key={restaurant.data.id} {...restaurant.data} />
+          );
+        })}
+      </div>
+    </>
   );
 };
 
